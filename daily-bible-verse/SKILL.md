@@ -23,6 +23,7 @@ description: Set up and manage daily Bible verse notifications, including schedu
 3. If the user provides partial updates, modify only the specified fields and keep the rest unchanged.
 4. Confirm the resolved settings (channel, schedule, timezone, version) before creating or updating the schedule.
 5. When delivering a verse, provide the verse text sourced by the agent handling the request.
+6. Format the delivered message exactly as specified below.
 
 ## Notes
 
@@ -38,3 +39,11 @@ description: Set up and manage daily Bible verse notifications, including schedu
 - "Change my daily verse time to 7:30am."
 - "Switch my version to ESV."
 - "Send my daily verse by SMS instead."
+
+## Delivery Format
+
+Use the following message format:
+
+Daily Bible Verse
+
+“<verse text>” (<book> <chapter>:<verse>)

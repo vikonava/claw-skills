@@ -22,10 +22,13 @@ description: Create and manage a Bible reading plan with daily/weekly schedules,
 
 ## Plan Files
 
-Store plan data in the user's workspace as JSON files. Do not include dates in the plan file.
+Store plan data **per identity** (per user). Never assume a single shared `plan.csv` or shared progress file.
 
-- `bible-reading-plan/reading-plan.json`
-- `bible-reading-plan/reading-progress.json`
+Recommended layout:
+
+- `bible-reading-plan/<identity>/reading-plan.json`
+- `bible-reading-plan/<identity>/reading-progress.json`
+- `bible-reading-plan/<identity>/plan.csv` (optional: date→reading schedule used by reminder/email automations)
 
 Plan file schema (date-less, sequential):
 
@@ -79,6 +82,8 @@ Progress file schema (per-identity tracking):
 7. Create three schedules for the identity: daily reminders, weekly reminders, and monthly summaries.
 8. Send a confirmation with the plan summary, reminder schedule, and the first day's reading.
 
+All scheduled jobs must reference the identity-specific plan/progress paths (e.g., `bible-reading-plan/<identity>/...`).
+
 ## Timeline Normalization
 
 Accept either:
@@ -129,7 +134,14 @@ Weekly reminder:
 Monthly summary:
 
 - Runs on the first day of each month at the user-specified time.
-- Send a summary that includes books and chapters completed in the prior month, whether the user is ahead or behind the plan and by how many reading days, and a short high-level summary of what was read.
+- Prefer a completion-based summary when completion data is available (e.g., Apple Reminders items marked complete).
+- If completion data is unavailable, fall back to a planned (schedule-based) summary.
+- For a completion-based monthly email template + generator script, use:
+  - `scripts/monthly_summary.py`
+    - Inputs: the **identity-specific** plan CSV (`date,reading`) + reminder completions (via `remindctl list <list> --json`)
+    - Output: HTML email body + counts + expected finish date
+    - Requires an explicit `--plan` path (or `BIBLE_PLAN_CSV`) so different users can have different plans
+    - Can send email directly if `gog` is configured
 
 ## On-Demand Requests
 

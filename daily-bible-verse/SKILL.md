@@ -12,6 +12,7 @@ description: Set up and manage daily Bible verse notifications, including schedu
 - Allow multiple delivery times per day
 - Allow any user-provided Bible version string
 - Enforce identity scoping: only the requesting identity can view or modify its own schedules
+- Do not reuse the same verse for the same identity within the last 30 days
 
 ## Workflow
 
@@ -22,13 +23,17 @@ description: Set up and manage daily Bible verse notifications, including schedu
    - Bible version string (default NASB1995)
 3. If the user provides partial updates, modify only the specified fields and keep the rest unchanged.
 4. Confirm the resolved settings (channel, schedule, timezone, version) before creating or updating the schedule.
-5. When delivering a verse, provide the verse text sourced by the agent handling the request.
+5. Track delivered verse references per-identity and consult that history before selecting a verse.
+6. Do not reuse the same verse for the same identity within the last 30 days. If the candidate verse is a repeat, select a different verse.
+7. When delivering a verse, provide the verse text sourced by the agent handling the request.
+8. Format the delivered message exactly as specified below.
 
 ## Notes
 
 - Never allow one identity to read or modify another identity's schedules.
 - If a user says "daily" with no time, use the default time and timezone.
 - If a user provides multiple times, schedule all of them.
+- Track delivered verse references per-identity to enforce the 30-day no-repeat rule.
 
 ## Usage Examples
 
@@ -38,3 +43,11 @@ description: Set up and manage daily Bible verse notifications, including schedu
 - "Change my daily verse time to 7:30am."
 - "Switch my version to ESV."
 - "Send my daily verse by SMS instead."
+
+## Delivery Format
+
+Use the following message format:
+
+Daily Bible Verse
+
+“<verse text>” (<book> <chapter>:<verse>)

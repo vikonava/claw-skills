@@ -1,9 +1,9 @@
 ---
-name: klipper-notifications
+name: moonraker-notifications
 description: Configure and manage Klipper print status notifications via Moonraker (HTTP API or webhooks) with per-status channel routing through OpenClaw. Use when a user wants to monitor Klipper/Moonraker print states, set status-triggered alerts, choose different channels per status, or update notification mappings.
 ---
 
-# Klipper Notifications
+# Moonraker Notifications
 
 ## Defaults
 
@@ -27,8 +27,8 @@ description: Configure and manage Klipper print status notifications via Moonrak
 
 Store configuration and runtime state per identity. Suggested layout:
 
-- `klipper-notifications/<identity>/config.json`
-- `klipper-notifications/<identity>/state.json`
+- `moonraker-notifications/<identity>/config.json`
+- `moonraker-notifications/<identity>/state.json`
 
 `config.json` schema (example):
 
@@ -61,7 +61,7 @@ Store configuration and runtime state per identity. Suggested layout:
 ```
 
 Secrets:
-- Store hook token in `klipper-notifications/<identity>/secrets.env` (chmod 600):
+- Store hook token in `moonraker-notifications/<identity>/secrets.env` (chmod 600):
   - `HOOK_TOKEN=<openclaw hooks.token>`
 
 `state.json` schema (example):

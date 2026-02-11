@@ -7,9 +7,9 @@ Requires:
 - Node.js 18+ (global WebSocket + fetch)
 
 Reads identity-scoped config/state:
-- klipper-notifications/<identity>/config.json
-- klipper-notifications/<identity>/state.json
-- klipper-notifications/<identity>/secrets.env  (HOOK_TOKEN)
+- moonraker-notifications/<identity>/config.json
+- moonraker-notifications/<identity>/state.json
+- moonraker-notifications/<identity>/secrets.env  (HOOK_TOKEN)
 
 Config expectations (minimal):
 - moonraker.base_url (http://host:7125)
@@ -121,7 +121,7 @@ async function run() {
   }
 
   const root = process.env.OPENCLAW_WORKSPACE || process.cwd();
-  const baseDir = path.join(root, 'klipper-notifications', identity);
+  const baseDir = path.join(root, 'moonraker-notifications', identity);
 
   const cfgPath = path.join(baseDir, 'config.json');
   const statePath = path.join(baseDir, 'state.json');

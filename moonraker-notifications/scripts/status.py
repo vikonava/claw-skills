@@ -5,7 +5,7 @@ Usage:
   status.py <identity>
 
 Reads:
-- klipper-notifications/<identity>/config.json
+- moonraker-notifications/<identity>/config.json
 
 Outputs a compact, chat-friendly status line.
 """
@@ -50,7 +50,7 @@ def main() -> int:
 
     identity = sys.argv[1].strip()
     root = os.environ.get("OPENCLAW_WORKSPACE") or os.getcwd()
-    cfg_path = os.path.join(root, "klipper-notifications", identity, "config.json")
+    cfg_path = os.path.join(root, "moonraker-notifications", identity, "config.json")
 
     cfg = load_json(cfg_path, {})
     base = (cfg.get("moonraker") or {}).get("base_url")

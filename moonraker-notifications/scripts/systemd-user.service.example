@@ -11,10 +11,10 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-# Set OPENCLAW_WORKSPACE to the workspace that contains klipper-notifications/<identity>/...
+# Set OPENCLAW_WORKSPACE to the workspace that contains moonraker-notifications/<identity>/...
 Environment=OPENCLAW_WORKSPACE=/home/USER/.openclaw/workspace
 WorkingDirectory=/home/USER/.openclaw/workspace
-ExecStart=/usr/bin/node /home/USER/.openclaw/workspace/skills/klipper-notifications/scripts/ws_listener.mjs <identity>
+ExecStart=/usr/bin/node /home/USER/.openclaw/workspace/skills/moonraker-notifications/scripts/ws_listener.mjs <identity>
 Restart=always
 RestartSec=3
 Environment=NODE_NO_WARNINGS=1

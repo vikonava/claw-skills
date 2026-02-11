@@ -41,3 +41,9 @@ Use this structure for every skill:
 - Add starter templates for common OpenClaw skill types.
 - Add validation checks for `SKILL.md` quality and structure.
 - Add an index of available skills and their use cases.
+
+## Existing skills
+
+- `bible-reading-plan` — Create and manage Bible reading plans with schedules, reminders, progress tracking, and summaries.
+- `daily-bible-verse` — Set up daily Bible verse notifications with schedule, channel, and version preferences.
+- `moonraker-notifications` — Configure Klipper/Moonraker print status notifications with per-status channel routing.

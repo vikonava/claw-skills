@@ -1,0 +1,26 @@
+# Example systemd --user unit for a single printer identity.
+# Copy to: ~/.config/systemd/user/klipper-<printer>.service
+# Then:
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now klipper-<printer>.service
+
+[Unit]
+Description=Klipper notifications (Moonraker WebSocket -> OpenClaw)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Set OPENCLAW_WORKSPACE to the workspace that contains klipper-notifications/<identity>/...
+Environment=OPENCLAW_WORKSPACE=/home/USER/.openclaw/workspace
+WorkingDirectory=/home/USER/.openclaw/workspace
+ExecStart=/usr/bin/node /home/USER/.openclaw/workspace/skills/klipper-notifications/scripts/ws_listener.mjs <identity>
+Restart=always
+RestartSec=3
+Environment=NODE_NO_WARNINGS=1
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

@@ -8,14 +8,15 @@ description: Configure and manage Klipper print status notifications via Moonrak
 ## Defaults
 
 - Enforce identity scoping: only the requesting identity can view or modify its own Klipper configuration, schedules, or notification mappings.
-- Prefer Moonraker HTTP API when webhook support is unavailable.
+- Prefer Moonraker WebSocket (event-driven) when available (common). Use HTTP polling only as a last resort.
 - Avoid duplicate alerts by tracking last-seen status/event per identity.
 
 ## Required Inputs
 
 - Moonraker connection method:
-  - HTTP API base URL (e.g., local LAN URL), or
-  - Webhook capability if Moonraker can POST to an OpenClaw webhook
+  - WebSocket (preferred; event-driven): `ws://<host>:7125/websocket` (usually derived from HTTP base URL)
+  - HTTP API base URL (used for on-demand status; and polling only as last resort)
+  - Optional: webhook capability if Moonraker (or a frontend) can POST to an OpenClaw webhook
 - Auth details if needed (token, API key, or local network-only confirmation)
 - Printer identifier (name or host) if multiple printers exist
 - Statuses to track
@@ -35,8 +36,8 @@ Store configuration and runtime state per identity. Suggested layout:
 {
   "identity": "<identity>",
   "moonraker": {
-    "mode": "http|webhook",
-    "base_url": "http://printer.local",
+    "mode": "websocket|http|webhook",
+    "base_url": "http://printer.local:7125",
     "auth": {
       "type": "none|token|api_key",
       "value": "<redacted>"
@@ -47,15 +48,21 @@ Store configuration and runtime state per identity. Suggested layout:
     "id": "<optional>"
   },
   "status_map": {
-    "printing": {"channel": "<openclaw-channel>", "template": "<optional>"},
-    "paused": {"channel": "<openclaw-channel>", "template": "<optional>"},
-    "complete": {"channel": "<openclaw-channel>", "template": "<optional>"},
-    "error": {"channel": "<openclaw-channel>", "template": "<optional>"}
+    "printing": {"channel": "imessage", "template": "<optional>"},
+    "paused": {"channel": "imessage", "template": "<optional>"},
+    "complete": {"channel": "imessage", "template": "<optional>"},
+    "error": {"channel": "imessage", "template": "<optional>"},
+    "cancelled": {"channel": "imessage", "template": "<optional>"}
   },
-  "default_channel": "<openclaw-channel>",
+  "default_channel": "imessage",
+  "to": "imessage:+15551234567",
   "message_style": "brief|detailed"
 }
 ```
+
+Secrets:
+- Store hook token in `klipper-notifications/<identity>/secrets.env` (chmod 600):
+  - `HOOK_TOKEN=<openclaw hooks.token>`
 
 `state.json` schema (example):
 
@@ -77,10 +84,27 @@ Store configuration and runtime state per identity. Suggested layout:
    - If unavailable, ask the user to name desired statuses and treat them as literals.
 4. Confirm per-status channel mapping. Allow a default channel for any status without an explicit mapping.
 5. Choose integration mode:
-   - **Webhook**: If Moonraker can POST to a webhook URL, configure it to send events to the user’s OpenClaw webhook.
-   - **HTTP polling**: If no webhook support, poll Moonraker at a user-approved interval and compare to `state.json` to avoid duplicates.
+   - **WebSocket listener (recommended)**: Run a persistent listener that subscribes to Moonraker status updates and triggers OpenClaw messages on state transitions.
+     - Script: `scripts/ws_listener.mjs`
+     - Run it under `systemd --user` so it restarts on disconnect/reboot.
+   - **Webhook**: If Moonraker (or a frontend) can POST to an OpenClaw webhook URL, configure it to send events to the user’s OpenClaw webhook.
+   - **HTTP polling (last resort)**: Poll Moonraker at a user-approved interval and compare to `state.json` to avoid duplicates.
 6. Send a test notification per channel to confirm delivery.
-7. Persist `config.json` and initialize `state.json`.
+7. Persist `config.json`, initialize `state.json`, and (if using WebSocket mode) create the user service.
+
+## WebSocket Mode (Recommended)
+
+Most Moonraker installs do not provide a simple outbound webhook for print state transitions, but they do provide a WebSocket stream of status updates.
+
+Use the bundled listener:
+- `scripts/ws_listener.mjs <identity>`
+
+Recommended deployment:
+- run as a persistent `systemd --user` service so it reconnects automatically.
+- Example unit template: `scripts/systemd-user.service.example`
+
+The listener triggers OpenClaw notifications via:
+- `POST /hooks/agent` (loopback) with `Authorization: Bearer <hooks.token>`.
 
 ## Webhook Mode Guidance
 
@@ -125,6 +149,7 @@ content_type = application/json
 ## On-Demand Requests
 
 - If the user asks for current status, fetch live status and respond without modifying `state.json`.
+  - Script: `scripts/status.py <identity>`
 - If the user asks to update mappings or channels, update `config.json` only for that identity.
 
 ## Safety Notes
